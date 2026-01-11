@@ -48,5 +48,4 @@ public class StatsController {
         log.info("Возвращено {} записей статистики", stats.size());
         return stats;
     }
-
 }
