@@ -1,4 +1,4 @@
-package ru.practicum.ewm.server.mapper;
+package mapper;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.server.model.EndpointHit;

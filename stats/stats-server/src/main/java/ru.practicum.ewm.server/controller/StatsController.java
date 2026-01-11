@@ -1,4 +1,4 @@
-package ru.practicum.ewm.server.controller;
+package controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
