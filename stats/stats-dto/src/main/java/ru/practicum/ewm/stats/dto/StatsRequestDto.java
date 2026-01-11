@@ -15,27 +15,27 @@ import java.util.List;
 @Builder
 public class StatsRequestDto {  // для запроса статистики
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "Дата начала обязательна для заполнения")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime start;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "Дата окончания обязательна для заполнения")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime end;
 
-    //Список uri для которых нужно выгрузить статистику
+    // Список URI для которых нужно выгрузить статистику
     private List<String> uris;
 
-    //кнопка Нужно ли учитывать только уникальные посещения (только с уникальным ip)
+    // Нужно ли учитывать только уникальные посещения (только с уникальным IP)
     @Builder.Default
     private Boolean unique = false;
 
-    @AssertTrue(message = "End date must be after start date")
+    @AssertTrue(message = "Дата окончания должна быть позже даты начала")
     public boolean isEndAfterStart() {
         return start == null || end == null || !end.isBefore(start);
     }
 
-    @AssertTrue(message = "End date cannot be in the future")
+    @AssertTrue(message = "Дата окончания не может быть в будущем")
     public boolean isEndNotInFuture() {
         return end == null || !end.isAfter(LocalDateTime.now());
     }
