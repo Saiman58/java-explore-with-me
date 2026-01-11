@@ -1,12 +1,13 @@
-package service;
+package ru.practicum.ewm.server.service;
 
 import lombok.RequiredArgsConstructor;
-import mapper.EndpointHitMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.practicum.ewm.server.mapper.EndpointHitMapper;
 import ru.practicum.ewm.server.repository.StatsRepository;
 import ru.practicum.ewm.server.repository.EndpointHitRepository;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;

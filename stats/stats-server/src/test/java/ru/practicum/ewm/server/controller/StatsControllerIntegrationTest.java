@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.server.StatsServerApplication;
+import StatsServerApplication;
 import ru.practicum.ewm.server.model.EndpointHit;
 import ru.practicum.ewm.server.repository.EndpointHitRepository;
 
