@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(StatsController.class)
+@WebMvcTest(ru.practicum.ewm.server.controller.StatsController.class)
 class StatsControllerTest {
 
     @Autowired

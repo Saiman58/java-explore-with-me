@@ -31,7 +31,7 @@ class StatsControllerIntegrationTest {
     private EndpointHitRepository repository;
 
     @Autowired
-    private StatsController controller;
+    private ru.practicum.ewm.server.controller.StatsController controller;
 
     private MockMvc mockMvc;
 
