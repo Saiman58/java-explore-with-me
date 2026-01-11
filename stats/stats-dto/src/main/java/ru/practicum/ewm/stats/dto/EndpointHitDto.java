@@ -15,23 +15,23 @@ public class EndpointHitDto {  // сохранение информации о �
 
     private Long id;
 
-    @NotBlank(message = "App cannot be blank")
-    @Size(max = 255, message = "App identifier cannot exceed 255 characters")
+    @NotBlank(message = "Идентификатор сервиса не может быть пустым")
+    @Size(max = 255, message = "Идентификатор сервиса не может превышать 255 символов")
     private String app;
 
-    @NotBlank(message = "URI cannot be blank")
-    @Size(max = 2048, message = "URI cannot exceed 2048 characters")
+    @NotBlank(message = "URI не может быть пустым")
+    @Size(max = 2048, message = "URI не может превышать 2048 символов")
     private String uri;
 
-    @NotBlank(message = "IP cannot be blank")
+    @NotBlank(message = "IP-адрес не может быть пустым")
     @Pattern(
             regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            message = "Invalid IP address"
+            message = "Неверный формат IP-адреса. Пример: 192.168.1.1"
     )
     private String ip;
 
-    @NotNull(message = "Timestamp cannot be null")
-    @PastOrPresent(message = "Timestamp must be in the past or present")
+    @NotNull(message = "Временная метка не может быть null")
+    @PastOrPresent(message = "Временная метка должна быть в прошлом или настоящем")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
