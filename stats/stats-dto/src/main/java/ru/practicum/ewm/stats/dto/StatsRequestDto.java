@@ -27,6 +27,7 @@ public class StatsRequestDto {  // для запроса статистики
     private List<String> uris;
 
     //кнопка Нужно ли учитывать только уникальные посещения (только с уникальным ip)
+    @Builder.Default
     private Boolean unique = false;
 
     @AssertTrue(message = "Дата окончания должна быть позже даты начала")
