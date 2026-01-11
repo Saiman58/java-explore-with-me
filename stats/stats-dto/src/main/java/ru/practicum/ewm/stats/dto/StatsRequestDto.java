@@ -15,11 +15,11 @@ import java.util.List;
 @Builder
 public class StatsRequestDto {  // для запроса статистики
 
-    @NotNull(message = "Дата и время начала диапазона за который нужно выгрузить статистику не может быть пустым")
+    @NotNull(message = "Start date is required")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime start;
 
-    @NotNull(message = "Дата и время конца диапазона за который нужно выгрузить статистику не может быть пустым")
+    @NotNull(message = "End date is required")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime end;
 
@@ -30,12 +30,12 @@ public class StatsRequestDto {  // для запроса статистики
     @Builder.Default
     private Boolean unique = false;
 
-    @AssertTrue(message = "Дата окончания должна быть позже даты начала")
+    @AssertTrue(message = "End date must be after start date")
     public boolean isEndAfterStart() {
         return start == null || end == null || !end.isBefore(start);
     }
 
-    @AssertTrue(message = "Дата окончания не может быть в будущем")
+    @AssertTrue(message = "End date cannot be in the future")
     public boolean isEndNotInFuture() {
         return end == null || !end.isAfter(LocalDateTime.now());
     }
