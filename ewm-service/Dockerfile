@@ -16,7 +16,9 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
 # Копируем jar из сборочного этапа
-COPY --from=build /app/target/ewm-service-0.0.1-SNAPSHOT.jar ewm-service.jar
+#COPY --from=build /app/target/ewm-service-0.0.1-SNAPSHOT.jar ewm-service.jar
+
+COPY ${JAR_FILE} app.jar
 
 # Открываем порт
 EXPOSE 8080
