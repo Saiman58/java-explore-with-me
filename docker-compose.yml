@@ -17,17 +17,16 @@ services:
       retries: 5
 
   stats-server:
-    build:
-      context: ./stats/stats-server
-      dockerfile: Dockerfile
+    build: ./stats/stats-server
     container_name: stats-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
-      SPRING_DATASOURCE_USERNAME: stats
-      SPRING_DATASOURCE_PASSWORD: password
+      DB_HOST: stats-db      #  внутри Docker сети
+      DB_PORT: 5432          #  порт PostgreSQL в контейнере
+      DB_NAME: stats
+      DB_USER: stats
+      DB_PASSWORD: password
     depends_on:
-      stats-db:
-        condition: service_healthy
+      - stats-db
     ports:
       - "9090:9090"
 
