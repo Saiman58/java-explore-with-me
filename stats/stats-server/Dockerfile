@@ -1,13 +1,17 @@
+# Этап сборки
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 
-FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
 
+# Копируем ВЕСЬ проект
+COPY . .
 
+# Собираем только stats-server модуль
+RUN mvn clean package -DskipTests -pl stats-server -am
+
+# Финальный образ
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/stats-server/target/*.jar app.jar
 EXPOSE 9090
 ENTRYPOINT ["java", "-jar", "app.jar"]

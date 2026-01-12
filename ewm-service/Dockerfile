@@ -1,25 +1,17 @@
-
+# Этап сборки
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
-# Копируем pom.xml и исходники
-COPY pom.xml .
-COPY src ./src
+# Копируем ВЕСЬ проект
+COPY . .
 
-# Сборка jar (skip тесты)
-RUN mvn clean package -DskipTests
+# Собираем только ewm-service модуль
+RUN mvn clean package -DskipTests -pl ewm-service -am
 
-# Финальный образ: только JDK
-FROM eclipse-temurin:21-jdk-alpine
-
+# Финальный образ
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
-# Копируем jar из сборочного этапа
-COPY --from=build /app/target/ewm-service-0.0.1-SNAPSHOT.jar ewm-service.jar
-
-# Открываем порт
+COPY --from=build /app/ewm-service/target/*.jar app.jar
 EXPOSE 8080
-
-# Команда запуска
-ENTRYPOINT ["java", "-jar", "ewm-service.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
