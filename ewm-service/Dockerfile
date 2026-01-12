@@ -1,5 +1,5 @@
 # Этап сборки: Maven + JDK
-FROM maven:3.9.1-eclipse-temurin-17 AS build
+FROM maven:3.9.1-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Финальный образ: только JDK
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
