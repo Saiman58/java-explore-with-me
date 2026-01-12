@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # Собираем только stats-server модуль
-RUN mvn clean package -DskipTests -pl stats-server -am
+RUN mvn clean package -DskipTests -pl stats/stats-server -am
 
 # Финальный образ
 FROM eclipse-temurin:21-jre-alpine
