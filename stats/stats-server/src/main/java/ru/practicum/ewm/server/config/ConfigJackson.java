@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
 @Configuration
-public class JacksonConfig {
+public class ConfigJackson {
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 

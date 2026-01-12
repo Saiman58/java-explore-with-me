@@ -17,44 +17,19 @@
 
     <name>Explore With Me</name>
 
-    <!-- Подмодули проекта -->
     <modules>
-        <module>ewm-service</module> <!-- Основной сервис -->
-        <module>stats</module>        <!-- Сервис статистики -->
+        <module>ewm-service</module>
+        <module>stats</module>
     </modules>
 
-    <!-- Свойства проекта -->
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Версия Lombok для всех модулей -->
-        <lombok.version>1.18.30</lombok.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- Lombok для генерации кода (геттеры, сеттеры, логирование) -->
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <optional>true</optional> <!-- Не транслируется в зависимости подмодулей -->
-            </dependency>
-
-            <!-- Actuator для мониторинга (health checks, metrics) -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-actuator</artifactId>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
-
-
-                <!-- Плагин для запуска тестов -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -64,18 +39,13 @@
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
-
-                <!--
-                    Checkstyle для проверки стиля кода.
-                    Правила берутся из checkstyle.xml в корне проекта.
-                -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>3.1.2</version>
                     <configuration>
                         <configLocation>checkstyle.xml</configLocation>
-                        <failOnViolation>true</failOnViolation> <!-- Остановить сборку при ошибках -->
+                        <failOnViolation>true</failOnViolation>
                         <logViolationsToConsole>true</logViolationsToConsole>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
@@ -84,27 +54,18 @@
                             <goals>
                                 <goal>check</goal>
                             </goals>
-                            <phase>compile</phase> <!-- Проверять при компиляции -->
+                            <phase>compile</phase>
                         </execution>
                     </executions>
-                    <dependencies>
-                        <!-- Зависимость для самого Checkstyle -->
-                        <dependency>
-                            <groupId>com.puppycrawl.tools</groupId>
-                            <artifactId>checkstyle</artifactId>
-                            <version>10.3</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
-
-                <!-- SpotBugs для статического анализа кода на ошибки -->
+                <!-- SpotBugs Maven Plugin -->
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>4.8.5.0</version>
                     <configuration>
-                        <effort>Max</effort>   <!-- Максимальная тщательность проверки -->
-                        <threshold>High</threshold> <!-- Только серьезные ошибки -->
+                        <effort>Max</effort>
+                        <threshold>High</threshold>
                     </configuration>
                     <executions>
                         <execution>
@@ -114,8 +75,7 @@
                         </execution>
                     </executions>
                 </plugin>
-
-                <!-- JaCoCo для измерения покрытия кода тестами -->
+                <!-- JaCoCo Maven Plugin -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
@@ -124,14 +84,12 @@
                         <output>file</output>
                     </configuration>
                     <executions>
-                        <!-- Подготовка агента для сбора покрытия -->
                         <execution>
                             <id>jacoco-initialize</id>
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
                         </execution>
-                        <!-- Проверка минимального покрытия -->
                         <execution>
                             <id>jacoco-check</id>
                             <goals>
@@ -141,11 +99,42 @@
                                 <rules>
                                     <rule>
                                         <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>INSTRUCTION</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>0.01</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>LINE</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>0.2</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>BRANCH</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>0.2</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>COMPLEXITY</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>0.2</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>METHOD</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>0.2</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>CLASS</counter>
+                                                <value>MISSEDCOUNT</value>
+                                                <maximum>1</maximum>
+                                            </limit>
+                                        </limits>
                                     </rule>
                                 </rules>
                             </configuration>
                         </execution>
-                        <!-- Генерация отчета -->
                         <execution>
                             <id>jacoco-site</id>
                             <phase>install</phase>
@@ -158,13 +147,7 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <!--
-        Профили сборки для разных сценариев.
-        Позволяют включать/выключать различные проверки.
-    -->
     <profiles>
-        <!-- Профиль для проверки качества кода (checkstyle + spotbugs) -->
         <profile>
             <id>check</id>
             <build>
@@ -188,8 +171,6 @@
                 </plugins>
             </reporting>
         </profile>
-
-        <!-- Профиль для проверки покрытия тестами (JaCoCo) -->
         <profile>
             <id>coverage</id>
             <build>
@@ -202,4 +183,5 @@
             </build>
         </profile>
     </profiles>
+
 </project>
