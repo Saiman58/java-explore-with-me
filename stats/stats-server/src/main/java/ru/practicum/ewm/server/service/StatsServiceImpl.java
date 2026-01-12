@@ -2,8 +2,7 @@ package ru.practicum.ewm.server.service;
 
 import lombok.RequiredArgsConstructor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +16,11 @@ import ru.practicum.ewm.server.model.EndpointHit;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class StatsServiceImpl implements ru.practicum.ewm.server.service.StatsService {
-    private static final Logger log = LoggerFactory.getLogger(StatsServiceImpl.class);
-
+public class StatsServiceImpl implements StatsService {
 
     private final EndpointHitRepository repository;
     private final StatsRepository statsRepository;
@@ -47,8 +45,10 @@ public class StatsServiceImpl implements ru.practicum.ewm.server.service.StatsSe
         log.debug("Поиск статистики: start={}, end={}, uris={}, unique={}",
                 start, end, uris, unique);
 
-        return Boolean.TRUE.equals(unique)
-                ? statsRepository.findStatsUnique(start, end, uris)
-                : statsRepository.findStats(start, end, uris);
+        if (unique != null && unique) {
+            return statsRepository.findStatsUnique(start, end, uris);
+        } else {
+            return statsRepository.findStats(start, end, uris);
+        }
     }
 }

@@ -25,9 +25,7 @@ public class StatsRequestDto {  // для запроса статистики
 
     // Список URI для которых нужно выгрузить статистику
     private List<String> uris;
-
     // Нужно ли учитывать только уникальные посещения (только с уникальным IP)
-    @Builder.Default
     private Boolean unique = false;
 
     @AssertTrue(message = "Дата окончания должна быть позже даты начала")
@@ -35,8 +33,4 @@ public class StatsRequestDto {  // для запроса статистики
         return start == null || end == null || !end.isBefore(start);
     }
 
-    @AssertTrue(message = "Дата окончания не может быть в будущем")
-    public boolean isEndNotInFuture() {
-        return end == null || !end.isAfter(LocalDateTime.now());
-    }
 }

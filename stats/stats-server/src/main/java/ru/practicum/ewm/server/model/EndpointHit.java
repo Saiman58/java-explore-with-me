@@ -1,5 +1,7 @@
 package ru.practicum.ewm.server.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +35,7 @@ public class EndpointHit {
     @Column(name = "ip", nullable = false, length = 45)
     private String ip;
 
-    @Column(name = "timestamp", nullable = false, columnDefinition = "TIMESTAMP")
+    @NotNull(message = "Временная метка не может быть null")
+    @PastOrPresent(message = "Временная метка должна быть в прошлом или настоящем")
     private LocalDateTime timestamp;
 }

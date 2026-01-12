@@ -28,25 +28,11 @@ public class StatsClient {
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     public void saveHit(EndpointHitDto hit) {
-        log.debug("Отправка статистики в сервис: app={}, uri={}, ip={}, time={}",
-                hit.getApp(), hit.getUri(), hit.getIp(), hit.getTimestamp());
-
+        log.info("Sending hit to stats server: {}", hit);
         try {
-            ResponseEntity<Void> response = restTemplate.postForEntity(
-                    serverUrl + "/hit",
-                    hit,
-                    Void.class
-            );
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                log.debug("Статистика успешно отправлена в сервис: app={}, uri={}",
-                        hit.getApp(), hit.getUri());
-            } else {
-                log.warn("Сервис статистики вернул неожиданный статус: {}",
-                        response.getStatusCode());
-            }
+            restTemplate.postForEntity(serverUrl + "/hit", hit, Void.class);
         } catch (Exception e) {
-            log.error("Ошибка при отправке статистики в сервис: {}", e.getMessage(), e);
+            log.error("Failed to send hit: {}", e.getMessage());
         }
     }
 
@@ -54,9 +40,6 @@ public class StatsClient {
                                        LocalDateTime end,
                                        boolean unique,
                                        List<String> uris) {
-
-        log.debug("Запрос статистики: период с {} по {}, уникальные={}, uris={}",
-                start, end, unique, uris);
 
         var uriBuilder = UriComponentsBuilder
                 .fromHttpUrl(serverUrl + "/stats")
@@ -69,20 +52,18 @@ public class StatsClient {
         }
 
         String url = uriBuilder.toUriString();
-        log.debug("Сформированный URL для запроса статистики: {}", url);
+        log.info("Requesting stats from server: {}", url);
 
         try {
             ResponseEntity<ViewStatsDto[]> response =
                     restTemplate.getForEntity(url, ViewStatsDto[].class);
 
-            log.debug("Получен ответ от сервиса статистики: статус={}, количество записей={}",
-                    response.getStatusCode(),
+            log.info("Received stats, count={}",
                     response.getBody() != null ? response.getBody().length : 0);
 
             return response.getBody() != null ? List.of(response.getBody()) : List.of();
         } catch (Exception e) {
-            log.error("Ошибка при запросе статистики из сервиса: {}", e.getMessage(), e);
-            log.warn("Возвращаем пустой список статистики из-за ошибки");
+            log.error("Failed to fetch stats: {}", e.getMessage());
             return List.of();
         }
     }

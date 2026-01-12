@@ -1,3 +1,6 @@
+# docker-compose up -d
+# docker ps
+
 services:
   stats-db:
     image: postgres:16.1
@@ -42,4 +45,5 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+
 
