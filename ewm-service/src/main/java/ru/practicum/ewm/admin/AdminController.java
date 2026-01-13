@@ -10,4 +10,5 @@ public class AdminController {
     public String health() {
         return "Admin API работает";
     }
+
 }
