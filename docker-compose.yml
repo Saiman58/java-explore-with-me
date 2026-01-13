@@ -1,14 +1,58 @@
+# docker-compose up -d
+# docker ps
+
+version: '3.8'
+
 services:
+  stats-db:
+    image: postgres:16.1-alpine
+    container_name: stats-db
+    environment:
+      POSTGRES_USER: stats
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: stats
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stats"]
+      interval: 5s
+      retries: 5
+    volumes:
+      - stats-db-data:/var/lib/postgresql/data
+
   stats-server:
+    build:
+      context: .
+      dockerfile: stats/stats-server/Dockerfile
+    container_name: stats-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
+      SPRING_DATASOURCE_USERNAME: stats
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      stats-db:
+        condition: service_healthy
     ports:
       - "9090:9090"
 
-  stats-db:
-    image: postgres:16.1
-
   ewm-service:
+    build:
+      context: .
+      dockerfile: ewm-service/Dockerfile
+    container_name: ewm-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
+      SPRING_DATASOURCE_USERNAME: stats
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      stats-db:
+        condition: service_healthy
+      stats-server:
+        condition: service_started
     ports:
       - "8080:8080"
 
-  ewm-db:
-    image: postgres:16.1
+volumes:
+  stats-db-data:
+
+
