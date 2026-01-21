@@ -5,7 +5,6 @@ import ru.practicum.explorewithme.server.dto.event.EventShortDto;
 import ru.practicum.explorewithme.server.dto.event.NewEventDto;
 import ru.practicum.explorewithme.server.dto.event.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.server.dto.event.UpdateEventUserRequest;
-import ru.practicum.explorewithme.server.entity.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
