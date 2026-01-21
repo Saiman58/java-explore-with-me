@@ -1,0 +1,26 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: ewm-stats-server
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    ru.practicum: DEBUG

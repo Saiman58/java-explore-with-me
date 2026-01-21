@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ewm-main
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    level:
+  # Ваши пакеты
+  ru.practicum.explorewithme.server: DEBUG
+  ru.practicum.explorewithme.server.service: DEBUG
+  ru.practicum.explorewithme.server.service.client: DEBUG
+  ru.practicum.explorewithme.server.controller: DEBUG
+
+  # Spring
+  org.springframework.web: DEBUG
+  org.springframework.transaction: DEBUG
+
+  # Hibernate SQL
+  org.hibernate.SQL: DEBUG
+  org.hibernate.type.descriptor.sql.BasicBinder: TRACE

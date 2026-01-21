@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://main-db:5432/ewm_main
+    username: main
+    password: main
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+stats-server:
+  url: http://stats-server:9090
