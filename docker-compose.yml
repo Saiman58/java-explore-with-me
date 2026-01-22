@@ -63,7 +63,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://main-db:5432/ewm_main
       SPRING_DATASOURCE_USERNAME: main
       SPRING_DATASOURCE_PASSWORD: main
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
       SPRING_PROFILES_ACTIVE: docker
       STATS_SERVER_URL: http://stats-server:9090
     depends_on:
