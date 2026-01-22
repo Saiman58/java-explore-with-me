@@ -7,17 +7,13 @@ ARG JAR_FILE=ewm-main-server-0.0.1-SNAPSHOT.jar
 WORKDIR /app
 
 # Копируем JAR
-COPY target/${JAR_FILE} app.jar
+COPY . .
 
-# ENV для профиля (опционально, если docker-compose не переопределяет)
-#ENV SPRING_PROFILES_ACTIVE=docker
+RUN mvn clean package -DskipTests -pl ewm-main/server -am
 
-# Экспонируем порт
+# Финальный образ
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY target/*.jar app.jar
 EXPOSE 8080
-
-# HEALTHCHECK (опционально, для docker-compose health)
-#  HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  #CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# Запуск
 ENTRYPOINT ["java", "-jar", "app.jar"]

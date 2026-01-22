@@ -17,6 +17,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
     volumes:
       - stats-db:/var/lib/postgresql/data
 
@@ -29,7 +30,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/ewm_stats
       SPRING_DATASOURCE_USERNAME: stats
       SPRING_DATASOURCE_PASSWORD: stats
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
       stats-db:
