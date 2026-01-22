@@ -69,12 +69,9 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       STATS_SERVER_URL: http://stats-server:9090
     depends_on:
-      main-db:
-        condition: wait-for-it.sh
-      stats-db:
-        condition: wait-for-it.sh
-      stats-server:
-        condition: wait-for-it.sh
+      - main-db
+      - stats-db
+      - stats-server
     volumes:
       - main-server:/app
 
