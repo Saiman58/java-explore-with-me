@@ -1,6 +1,5 @@
 server:
   port: 8080
-
 spring:
   datasource:
     url: jdbc:postgresql://main-db:5432/ewm_main
