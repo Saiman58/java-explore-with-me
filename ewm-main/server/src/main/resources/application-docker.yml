@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   datasource:
     url: jdbc:postgresql://main-db:5432/ewm_main
@@ -17,3 +20,5 @@ spring:
       mode: always
 stats-server:
   url: http://stats-server:9090
+
+
