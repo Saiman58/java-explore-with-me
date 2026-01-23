@@ -1,14 +1,9 @@
 FROM eclipse-temurin:21-jdk
 
-WORKDIR /app
-
-COPY . .
-
-RUN mvn clean package -DskipTests -pl ewm-stats/server -am
-
-# Финальный образ
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-COPY target/*.jar app.jar
-EXPOSE 9090
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Аргумент для версии JAR (по умолчанию SNAPSHOT)
+ARG JAR_FILE=ewm-main-server-0.0.1-SNAPSHOT.jar
+FROM eclipse-temurin:21-jre-jammy
+VOLUME /tmp
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app.jar"]

@@ -64,8 +64,16 @@ public class Event {
     @Builder.Default
     private EventState state = EventState.PENDING;
 
+    /*
     @PrePersist
     protected void onCreate() {
         createdOn = LocalDateTime.now();
     }
+     */
+
+    @Column(name = "confirmed_requests")
+    private Long confirmedRequests = 0L;
+
+    @Column(name = "views")
+    private Long views = 0L;
 }

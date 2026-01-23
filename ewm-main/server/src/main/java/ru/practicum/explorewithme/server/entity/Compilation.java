@@ -29,7 +29,7 @@ public class Compilation { // подборка событий
 
     @ManyToMany
     @JoinTable(
-            name = "compilation_events",
+            name = "compilations_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )

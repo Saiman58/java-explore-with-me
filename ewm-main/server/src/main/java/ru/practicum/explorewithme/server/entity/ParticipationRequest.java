@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "participation_requests")
+@Table(name = "requests")
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,7 +16,7 @@ public class ParticipationRequest { //заявка на участие
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created", nullable = false)
     @Builder.Default
     private LocalDateTime created = LocalDateTime.now();
 
