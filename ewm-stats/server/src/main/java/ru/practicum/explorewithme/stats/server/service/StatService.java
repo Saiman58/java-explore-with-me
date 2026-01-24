@@ -15,13 +15,11 @@ import java.util.List;
 public class StatService {
     private final HitRepository repository;
 
-    // Сохранение информации о запросе к эндпоинту
     public EndpointHit saveHit(EndpointHit hit) {
         repository.save(Hit.fromDto(hit));
         return hit;
     }
 
-    //Получение статистики по посещениям
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (unique) {
             return repository.findUniqueStats(start, end, uris);

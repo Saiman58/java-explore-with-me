@@ -11,10 +11,7 @@ import java.util.List;
 
 public interface HitRepository extends JpaRepository<Hit, Long> {
 
-    // Получение статистики (все хиты)
-    @Query("SELECT new ru.practicum.explorewithme.stats.dto.ViewStats(" +
-            "h.app, h.uri, " +
-            "COUNT(h.id)) " +
+    @Query("SELECT new ru.practicum.explorewithme.stats.dto.ViewStats(h.app, h.uri, COUNT(h.id)) " +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "AND (:uris IS NULL OR h.uri IN :uris) " +
@@ -24,9 +21,7 @@ public interface HitRepository extends JpaRepository<Hit, Long> {
                               @Param("end") LocalDateTime end,
                               @Param("uris") List<String> uris);
 
-    // Получение уникальной статистики (по уникальным IP)
-    @Query("SELECT new ru.practicum.explorewithme.stats.dto.ViewStats(" +
-            "h.app, h.uri, COUNT(DISTINCT h.ip)) " +
+    @Query("SELECT new ru.practicum.explorewithme.stats.dto.ViewStats(h.app, h.uri, COUNT(DISTINCT h.ip)) " +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "AND (:uris IS NULL OR h.uri IN :uris) " +
@@ -35,4 +30,11 @@ public interface HitRepository extends JpaRepository<Hit, Long> {
     List<ViewStats> findUniqueStats(@Param("start") LocalDateTime start,
                                     @Param("end") LocalDateTime end,
                                     @Param("uris") List<String> uris);
+
+    List<Hit> findAllByUriAndTimestampBetween(String uri, LocalDateTime start, LocalDateTime end);
+
+    List<Hit> findAllByTimestampBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT h FROM Hit h WHERE h.timestamp BETWEEN :start AND :end GROUP BY h.uri, h.app, h.ip")
+    List<Hit> findDistinctByTimestampBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

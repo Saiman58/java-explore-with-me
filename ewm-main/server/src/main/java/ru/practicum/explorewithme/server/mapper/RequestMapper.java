@@ -1,20 +1,19 @@
 package ru.practicum.explorewithme.server.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.explorewithme.server.dto.request.ParticipationRequestDto;
-import ru.practicum.explorewithme.server.entity.ParticipationRequest;
+import ru.practicum.explorewithme.request.dto.ParticipationRequestDto;
+import ru.practicum.explorewithme.server.entity.Request;
 
 @Component
 public class RequestMapper {
 
-    // Преобразование ParticipationRequest в ParticipationRequestDto
-    public ParticipationRequestDto toDto(ParticipationRequest request) {
-        ParticipationRequestDto dto = new ParticipationRequestDto();
-        dto.setId(request.getId());
-        dto.setCreated(request.getCreated());
-        dto.setEvent(request.getEvent().getId());
-        dto.setRequester(request.getRequester().getId());
-        dto.setStatus(request.getStatus().name());
-        return dto;
+    public ParticipationRequestDto toDto(Request request) {
+        return ParticipationRequestDto.builder()
+                .id(request.getId())
+                .created(request.getCreated())
+                .event(request.getEvent().getId())
+                .requester(request.getRequester().getId())
+                .status(request.getStatus().name())
+                .build();
     }
 }

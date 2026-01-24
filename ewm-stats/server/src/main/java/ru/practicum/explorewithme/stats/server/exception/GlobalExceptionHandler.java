@@ -17,10 +17,9 @@ import java.util.List;
 @Order(1)
 public class GlobalExceptionHandler {
 
-    // Обработка IllegalArgumentException (некорректные аргументы)
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException e) {
-        log.warn("Некорректный аргумент: {}", e.getMessage());
+        log.warn("BAD_REQUEST: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
                 .reason("Incorrectly made request.")
@@ -31,10 +30,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    // Обработка MissingServletRequestParameterException (отсутствующие параметры запроса)
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiError> handleMissingRequestParam(MissingServletRequestParameterException e) {
-        log.warn("Отсутствует обязательный параметр запроса: {}", e.getParameterName());
+        log.warn("BAD_REQUEST missing request param: {}", e.getParameterName());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
                 .reason("Required request parameter is missing.")
@@ -45,10 +43,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    // Общая обработка всех исключений
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception e) {
-        log.error("Внутренняя ошибка сервера: {}", e.getMessage(), e);
+        log.error("INTERNAL_SERVER_ERROR: {}", e.getMessage(), e);
         ApiError error = ApiError.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
                 .reason("Internal server error.")

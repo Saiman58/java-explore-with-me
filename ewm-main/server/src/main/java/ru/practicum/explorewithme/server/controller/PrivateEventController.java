@@ -1,89 +1,71 @@
 package ru.practicum.explorewithme.server.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explorewithme.server.dto.event.EventFullDto;
-import ru.practicum.explorewithme.server.dto.event.NewEventDto;
-import ru.practicum.explorewithme.server.dto.event.UpdateEventUserRequest;
+import ru.practicum.explorewithme.event.dto.EventFullDto;
+import ru.practicum.explorewithme.event.dto.EventShortDto;
+import ru.practicum.explorewithme.event.dto.NewEventDto;
+import ru.practicum.explorewithme.event.dto.UpdateEventUserRequest;
+import ru.practicum.explorewithme.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.explorewithme.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.explorewithme.request.dto.ParticipationRequestDto;
 import ru.practicum.explorewithme.server.service.EventService;
+import ru.practicum.explorewithme.server.service.RequestService;
 
 import java.util.List;
 
-@Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/users/{userId}/events")
+@RequiredArgsConstructor
 @Validated
 public class PrivateEventController {
     private final EventService eventService;
+    private final RequestService requestService;
 
+    @GetMapping
+    public List<EventShortDto> getAll(@PathVariable Long userId,
+                                      @RequestParam(required = false) Integer from,
+                                      @RequestParam(required = false) Integer size) {
 
-    // POST /users/{userId}/events
-    //Добавление нового события
+        int safeFrom = (from == null) ? 0 : from;
+        int safeSize = (size == null) ? 10 : size;
+
+        return eventService.getUserEvents(userId, safeFrom, safeSize);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto createEvent(
-            @PathVariable @Positive Long userId,
-            @Valid @RequestBody NewEventDto newEventDto) {
-
-        log.info("POST /users/{}/events - создание события: {}", userId, newEventDto.getTitle());
-        EventFullDto createdEvent = eventService.createEvent(userId, newEventDto);
-        log.info("Событие создано с id={}", createdEvent.getId());
-
-        return createdEvent;
+    public EventFullDto create(@PathVariable Long userId, @Valid @RequestBody NewEventDto newEvent) {
+        return eventService.create(userId, newEvent);
     }
 
-    // GET /users/{userId}/events
-    // Получение событий, добавленных текущим пользователем
-    @GetMapping
-    public List<EventFullDto> getUserEvents(
-            @PathVariable @Positive Long userId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size) {
-
-        log.info("GET /users/{}/events - получение событий пользователя, from={}, size={}",
-                userId, from, size);
-
-        return eventService.getUserEvents(userId, from, size);
-    }
-
-    // GET /users/{userId}/events/{eventId}
-    //Получение полной информации о событии добавленном текущим пользователем
     @GetMapping("/{eventId}")
-    public EventFullDto getUserEvent(
-            @PathVariable @Positive Long userId,
-            @PathVariable @Positive Long eventId) {
-
-        log.info("GET /users/{}/events/{} - получение конкретного события пользователя",
-                userId, eventId);
-
+    public EventFullDto getById(@PathVariable Long userId, @PathVariable Long eventId) {
         return eventService.getUserEvent(userId, eventId);
     }
 
-    //PATCH /users/{userId}/events/{eventId}
-    //Изменение события добавленного текущим пользователем
-
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventByUser(
-            @PathVariable @Positive Long userId,
-            @PathVariable @Positive Long eventId,
-            @Valid @RequestBody UpdateEventUserRequest updateRequest) {
+    public EventFullDto update(@PathVariable Long userId, @PathVariable Long eventId, @Valid @RequestBody UpdateEventUserRequest update) {
+        return eventService.updateUser(userId, eventId, update);
+    }
 
-        log.info("PATCH /users/{}/events/{} - обновление события пользователем",
-                userId, eventId);
+    @GetMapping("/{eventId}/requests")
+    public List<ParticipationRequestDto> getEventRequests(
+            @PathVariable Long userId,
+            @PathVariable Long eventId
+    ) {
+        return requestService.getByEvent(userId, eventId);
+    }
 
-        return eventService.updateEventByUser(userId, eventId, updateRequest);
+    @PatchMapping("/{eventId}/requests")
+    public EventRequestStatusUpdateResult changeRequestStatus(
+            @PathVariable Long userId,
+            @PathVariable Long eventId,
+            @Valid @RequestBody EventRequestStatusUpdateRequest update
+    ) {
+        return requestService.changeStatus(userId, eventId, update);
     }
 }
-/*
-Событие должно содержать поля: id, title,
-annotation, category, paid, eventDate,
-initiator, views, confirmedRequests, description,
-participantLimit, state, createdOn, publishedOn, location, requestModeration
- */

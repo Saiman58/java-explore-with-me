@@ -1,52 +1,45 @@
 package ru.practicum.explorewithme.server.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explorewithme.server.dto.compilation.CompilationDto;
-import ru.practicum.explorewithme.server.dto.compilation.NewCompilationDto;
-import ru.practicum.explorewithme.server.dto.compilation.UpdateCompilationRequest;
+import ru.practicum.explorewithme.compilation.dto.CompilationDto;
+import ru.practicum.explorewithme.compilation.dto.NewCompilationDto;
+import ru.practicum.explorewithme.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.explorewithme.server.service.CompilationService;
 
-@Slf4j
-@Validated
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/compilations")
 @RequiredArgsConstructor
+@Validated
 public class AdminCompilationController {
-
     private final CompilationService compilationService;
 
-    // POST /admin/compilations
-    // Добавление новой подборки событий
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto createCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
-        log.info("POST /admin/compilations - название: '{}', закреплена: {}",
-                newCompilationDto.getTitle(), newCompilationDto.getPinned());
-        return compilationService.createCompilation(newCompilationDto);
+    public ResponseEntity<CompilationDto> create(@Valid @RequestBody NewCompilationDto newCompilation) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(compilationService.create(newCompilation));
     }
 
-    // DELETE /admin/compilations/{compId}
-    // Удаление подборки событий
+    @GetMapping
+    public ResponseEntity<List<CompilationDto>> getAll(@RequestParam(required = false) Boolean pinned,
+                                                       @RequestParam(defaultValue = "0") Integer from,
+                                                       @RequestParam(defaultValue = "10") Integer size) {
+        return ResponseEntity.ok(compilationService.getAll(pinned, from, size));
+    }
+
     @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable @Positive Long compId) {
-        log.info("DELETE /admin/compilations/{}", compId);
-        compilationService.deleteCompilation(compId);
+    public void delete(@PathVariable Long compId) {
+        compilationService.delete(compId);
     }
 
-    // PATCH /admin/compilations/{compId}
-    // Обновление информации о подборке событий
     @PatchMapping("/{compId}")
-    public CompilationDto updateCompilation(
-            @PathVariable @Positive Long compId,
-            @Valid @RequestBody UpdateCompilationRequest updateRequest) {
-        log.info("PATCH /admin/compilations/{}: {}", compId, updateRequest);
-        return compilationService.updateCompilation(compId, updateRequest);
+    public CompilationDto update(@PathVariable Long compId, @Valid @RequestBody UpdateCompilationRequest update) {
+        return compilationService.update(compId, update);
     }
 }

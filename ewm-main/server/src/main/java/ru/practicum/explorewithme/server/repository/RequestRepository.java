@@ -1,32 +1,21 @@
 package ru.practicum.explorewithme.server.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import ru.practicum.explorewithme.server.entity.ParticipationRequest;
+import ru.practicum.explorewithme.server.entity.Request;
 import ru.practicum.explorewithme.server.entity.RequestStatus;
 
 import java.util.List;
 
-public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
+public interface RequestRepository extends JpaRepository<Request, Long> {
+    List<Request> findAllByEventId(Long eventId);
 
-    // Поиск всех запросов пользователя
-    List<ParticipationRequest> findAllByRequesterId(Long userId);
+    List<Request> findAllByRequesterIdAndEventIdIn(Long userId, List<Long> eventIds);
 
-    // Поиск всех запросов для события
-    List<ParticipationRequest> findAllByEventId(Long eventId);
+    List<Request> findAllByEventIdAndStatus(Long eventId, RequestStatus status);
 
-    // Подсчет количества запросов для события с определенным статусом
+    List<Request> findAllByRequesterId(Long userId);
+
     Long countByEventIdAndStatus(Long eventId, RequestStatus status);
 
-    // Подсчет подтвержденных запросов для события (кастомный запрос)
-    @Query("SELECT COUNT(pr) FROM ParticipationRequest pr " +
-            "WHERE pr.event.id = :eventId AND pr.status = 'CONFIRMED'")
-    Long countConfirmedRequests(@Param("eventId") Long eventId);
-
-    // Проверка существования запроса пользователя на событие
-    boolean existsByEventIdAndRequesterId(Long eventId, Long userId);
-
-    // Поиск запросов по списку ID
-    List<ParticipationRequest> findAllByIdIn(List<Long> requestIds);
+    boolean existsByEventIdAndRequesterId(Long eventId, Long requesterId);
 }

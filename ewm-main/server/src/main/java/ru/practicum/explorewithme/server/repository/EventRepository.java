@@ -14,50 +14,44 @@ import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    // PRIVATE API: События конкретного пользователя с пагинацией
-    Page<Event> findByInitiatorId(Long initiatorId, Pageable pageable);
+    boolean existsByCategoryId(Long categoryId);
 
-    // PRIVATE API: Конкретное событие пользователя
-    Optional<Event> findByIdAndInitiatorId(Long eventId, Long initiatorId);
-
-    // PUBLIC API: Только опубликованные события
-    Page<Event> findByState(EventState state, Pageable pageable);
-
-    // PUBLIC API: Поиск опубликованных событий с фильтрами
-    @Query("SELECT e FROM Event e WHERE " +
-            "e.state = 'PUBLISHED' AND " +
-            "(:text IS NULL OR LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) " +
-            "OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) AND " +
-            "(:categories IS NULL OR e.category.id IN :categories) AND " +
-            "(:paid IS NULL OR e.paid = :paid) AND " +
-            "(:rangeStart IS NULL OR e.eventDate >= :rangeStart) AND " +
-            "(:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)")
-    Page<Event> findPublishedEventsWithFilters(
+    @Query("""
+    SELECT e FROM Event e
+    WHERE LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%'))
+       OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))
+       OR LOWER(e.title) LIKE LOWER(CONCAT('%', :text, '%'))
+      AND (:categories IS NULL OR e.category.id IN :categories)
+      AND e.state = :publishedState
+      AND (:paid IS NULL OR e.paid = :paid)
+      AND e.eventDate BETWEEN :rangeStart AND :rangeEnd
+      AND (:onlyAvailable IS NULL OR e.participantLimit = 0
+           OR e.participantLimit > (SELECT COUNT(r) FROM Request r WHERE r.event = e AND r.status = 'CONFIRMED'))
+    ORDER BY e.eventDate DESC
+""")
+    Page<Event> findPublicEvents(
             @Param("text") String text,
             @Param("categories") List<Long> categories,
             @Param("paid") Boolean paid,
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd,
+            @Param("onlyAvailable") Boolean onlyAvailable,
+            @Param("publishedState") EventState publishedState,
             Pageable pageable);
 
-    // PUBLIC API: Событие по ID (только опубликованное)
-    Optional<Event> findByIdAndState(Long id, EventState state);
+    @Query("SELECT e FROM Event e WHERE (:users IS NULL OR e.initiator.id IN :users) " +
+            "AND (:states IS NULL OR e.state IN :states) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND e.eventDate BETWEEN :rangeStart AND :rangeEnd")
+    List<Event> findAdminEvents(@Param("users") List<Long> users,
+                                @Param("states") List<EventState> states,
+                                @Param("categories") List<Long> categories,
+                                @Param("rangeStart") LocalDateTime rangeStart,
+                                @Param("rangeEnd") LocalDateTime rangeEnd,
+                                Pageable pageable);
 
-    // ADMIN API: Поиск событий с фильтрами для администратора
-    @Query("SELECT e FROM Event e WHERE " +
-            "(:users IS NULL OR e.initiator.id IN :users) AND " +
-            "(:states IS NULL OR e.state IN :states) AND " +
-            "(:categories IS NULL OR e.category.id IN :categories) AND " +
-            "(:rangeStart IS NULL OR e.eventDate >= :rangeStart) AND " +
-            "(:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)")
-    Page<Event> findEventsByAdminFilters(
-            @Param("users") List<Long> users,
-            @Param("states") List<EventState> states,
-            @Param("categories") List<Long> categories,
-            @Param("rangeStart") LocalDateTime rangeStart,
-            @Param("rangeEnd") LocalDateTime rangeEnd,
-            Pageable pageable);
+    List<Event> findAllByInitiatorId(Long userId, Pageable pageable);
 
-    // Проверка существования событий по категории
-    boolean existsByCategoryId(Long categoryId);
+    @Query("SELECT e FROM Event e JOIN FETCH e.initiator WHERE e.id = :id")
+    Optional<Event> findByIdWithInitiator(@Param("id") Long id);
 }

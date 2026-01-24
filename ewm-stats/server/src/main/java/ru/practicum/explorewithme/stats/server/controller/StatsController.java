@@ -23,25 +23,19 @@ import java.util.List;
 public class StatsController {
     private final StatService statService;
 
-    // POST /hit
-    // Сохранение информации о том, что к эндпоинту был запрос
     @PostMapping("/hit")
     public ResponseEntity<EndpointHit> hit(@Valid @RequestBody EndpointHit endpointHit) {
-        log.debug("Сохранение запроса: {}", endpointHit);
+        log.debug("Saving hit: {}", endpointHit);
         EndpointHit savedHit = statService.saveHit(endpointHit);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedHit);
     }
 
-    // GET /stats
-    // Получение статистики по посещениям
     @GetMapping("/stats")
-    public ResponseEntity<List<ViewStats>> getStats(
-            @RequestParam @DateTimeFormat(pattern = Constants.FORMATTER) LocalDateTime start,
-            @RequestParam @DateTimeFormat(pattern = Constants.FORMATTER) LocalDateTime end,
-            @RequestParam(required = false) List<String> uris,
-            @RequestParam(defaultValue = "false") boolean unique) {
-
-        log.debug("Получение статистики с {} по {}, uris: {}, unique: {}", start, end, uris, unique);
+    public ResponseEntity<List<ViewStats>> getStats(@RequestParam @DateTimeFormat(pattern = Constants.FORMATTER) LocalDateTime start,
+                                                    @RequestParam @DateTimeFormat(pattern = Constants.FORMATTER) LocalDateTime end,
+                                                    @RequestParam(required = false) List<String> uris,
+                                                    @RequestParam(defaultValue = "false") boolean unique) {
+        log.debug("Getting stats from {} to {}, uris: {}, unique: {}", start, end, uris, unique);
 
         if (start.isAfter(end)) {
             throw new IllegalArgumentException("Неверный диапазон дат: start не может быть после end");
