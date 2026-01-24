@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.compilation.dto.CompilationDto;
-import ru.practicum.explorewithme.server.service.CompilationService;
+import ru.practicum.explorewithme.server.service.CompilationServiceImpl;
 
 import java.util.List;
 
@@ -13,17 +13,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class PublicCompilationController {
-    private final CompilationService compilationService;
+    private final CompilationServiceImpl compilationServiceImpl;
 
     @GetMapping
     public List<CompilationDto> getAll(@RequestParam(required = false) Boolean pinned,
                                        @RequestParam(defaultValue = "0") Integer from,
                                        @RequestParam(defaultValue = "10") Integer size) {
-        return compilationService.getAll(pinned, from, size);
+        return compilationServiceImpl.getAll(pinned, from, size);
     }
 
     @GetMapping("/{compId}")
     public CompilationDto getById(@PathVariable Long compId) {
-        return compilationService.getById(compId);
+        return compilationServiceImpl.getById(compId);
     }
 }

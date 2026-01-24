@@ -16,12 +16,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class StatServiceTest {
+class StatServiceImplTest {
     @Mock
     private HitRepository hitRepository;
 
     @InjectMocks
-    private StatService statService;
+    private StatServiceImpl statServiceImpl;
 
     @Test
     void getStats_nonUnique() {
@@ -32,7 +32,7 @@ class StatServiceTest {
         List<ViewStats> mockStats = List.of(new ViewStats("app", "/events/1", 5L));
         when(hitRepository.findStats(any(), any(), any())).thenReturn(mockStats);
 
-        List<ViewStats> stats = statService.getStats(start, end, uris, false);
+        List<ViewStats> stats = statServiceImpl.getStats(start, end, uris, false);
 
         assertEquals(1, stats.size());
         assertEquals("/events/1", stats.get(0).getUri());
@@ -48,7 +48,7 @@ class StatServiceTest {
         List<ViewStats> mockStats = List.of(new ViewStats("app", "/events/1", 3L));
         when(hitRepository.findUniqueStats(any(), any(), any())).thenReturn(mockStats);
 
-        List<ViewStats> stats = statService.getStats(start, end, uris, true);
+        List<ViewStats> stats = statServiceImpl.getStats(start, end, uris, true);
 
         assertEquals(1, stats.size());
         assertEquals("/events/1", stats.get(0).getUri());

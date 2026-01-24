@@ -12,10 +12,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+// Репозиторий событий
 public interface EventRepository extends JpaRepository<Event, Long> {
 
+    // Проверка существования событий по категории
     boolean existsByCategoryId(Long categoryId);
 
+    // Поиск публичных событий с фильтрами
     @Query("""
     SELECT e FROM Event e
     WHERE LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%'))
@@ -39,6 +42,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("publishedState") EventState publishedState,
             Pageable pageable);
 
+    // Поиск событий для администратора
     @Query("SELECT e FROM Event e WHERE (:users IS NULL OR e.initiator.id IN :users) " +
             "AND (:states IS NULL OR e.state IN :states) " +
             "AND (:categories IS NULL OR e.category.id IN :categories) " +
@@ -50,8 +54,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                 @Param("rangeEnd") LocalDateTime rangeEnd,
                                 Pageable pageable);
 
+    // Поиск событий по инициатору
     List<Event> findAllByInitiatorId(Long userId, Pageable pageable);
 
+    // Получение события с инициатором (FETCH JOIN)
     @Query("SELECT e FROM Event e JOIN FETCH e.initiator WHERE e.id = :id")
     Optional<Event> findByIdWithInitiator(@Param("id") Long id);
 }

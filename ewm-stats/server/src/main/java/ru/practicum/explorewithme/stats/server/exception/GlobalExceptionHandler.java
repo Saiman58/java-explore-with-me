@@ -19,10 +19,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException e) {
-        log.warn("BAD_REQUEST: {}", e.getMessage());
+        log.warn("Некорректный запрос: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
+                .reason("Некорректно составлен запрос.")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .errors(List.of())
@@ -32,11 +32,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiError> handleMissingRequestParam(MissingServletRequestParameterException e) {
-        log.warn("BAD_REQUEST missing request param: {}", e.getParameterName());
+        log.warn("Отсутствует обязательный параметр: {}", e.getParameterName());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Required request parameter is missing.")
-                .message("Parameter '" + e.getParameterName() + "' is required")
+                .reason("Отсутствует обязательный параметр запроса.")
+                .message("Параметр '" + e.getParameterName() + "' обязателен")
                 .timestamp(LocalDateTime.now())
                 .errors(List.of())
                 .build();
@@ -45,11 +45,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception e) {
-        log.error("INTERNAL_SERVER_ERROR: {}", e.getMessage(), e);
+        log.error("Внутренняя ошибка сервера: {}", e.getMessage(), e);
         ApiError error = ApiError.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
-                .reason("Internal server error.")
-                .message(e.getMessage() != null ? e.getMessage() : "Unknown error")
+                .reason("Внутренняя ошибка сервера.")
+                .message(e.getMessage() != null ? e.getMessage() : "Неизвестная ошибка")
                 .timestamp(LocalDateTime.now())
                 .errors(List.of())
                 .build();

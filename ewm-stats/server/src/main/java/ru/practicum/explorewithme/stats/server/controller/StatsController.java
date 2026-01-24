@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.stats.dto.Constants;
 import ru.practicum.explorewithme.stats.dto.EndpointHit;
 import ru.practicum.explorewithme.stats.dto.ViewStats;
-import ru.practicum.explorewithme.stats.server.service.StatService;
+import ru.practicum.explorewithme.stats.server.service.StatServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,12 +21,12 @@ import java.util.List;
 @Slf4j
 @Validated
 public class StatsController {
-    private final StatService statService;
+    private final StatServiceImpl statServiceImpl;
 
     @PostMapping("/hit")
     public ResponseEntity<EndpointHit> hit(@Valid @RequestBody EndpointHit endpointHit) {
         log.debug("Saving hit: {}", endpointHit);
-        EndpointHit savedHit = statService.saveHit(endpointHit);
+        EndpointHit savedHit = statServiceImpl.saveHit(endpointHit);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedHit);
     }
 
@@ -41,7 +41,7 @@ public class StatsController {
             throw new IllegalArgumentException("Неверный диапазон дат: start не может быть после end");
         }
 
-        List<ViewStats> stats = statService.getStats(start, end, uris, unique);
+        List<ViewStats> stats = statServiceImpl.getStats(start, end, uris, unique);
         return ResponseEntity.ok(stats);
     }
 }

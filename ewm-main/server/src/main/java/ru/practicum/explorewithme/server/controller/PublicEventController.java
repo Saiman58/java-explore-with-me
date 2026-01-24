@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.event.dto.EventFullDto;
 import ru.practicum.explorewithme.event.dto.EventShortDto;
-import ru.practicum.explorewithme.server.service.EventService;
+import ru.practicum.explorewithme.server.service.EventServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
 @Validated
 public class PublicEventController {
 
-    private final EventService eventService;
+    private final EventServiceImpl eventServiceImpl;
 
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
@@ -37,7 +37,7 @@ public class PublicEventController {
             @RequestParam(defaultValue = "10") Integer size,
             HttpServletRequest request) {
 
-        return eventService.getPublicEvents(
+        return eventServiceImpl.getPublicEvents(
                 text,
                 categories,
                 paid,
@@ -54,6 +54,6 @@ public class PublicEventController {
     @GetMapping("/{id}")
     public EventFullDto getById(@PathVariable Long id, HttpServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
-        return eventService.getPublicEvent(id, remoteAddr);
+        return eventServiceImpl.getPublicEvent(id, remoteAddr);
     }
 }

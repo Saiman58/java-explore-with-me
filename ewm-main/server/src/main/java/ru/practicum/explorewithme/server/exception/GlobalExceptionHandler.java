@@ -29,15 +29,15 @@ public class GlobalExceptionHandler {
 
     @PostConstruct
     public void init() {
-        log.info("GlobalExceptionHandler initialized — ready to catch exceptions!");
+        log.info("GlobalExceptionHandler инициализирован — готов к обработке исключений!");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException e) {
-        log.warn("BAD_REQUEST: {}", e.getMessage());
+        log.warn("Некорректный запрос: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
+                .reason("Некорректно составлен запрос.")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -46,10 +46,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ApiError> handleIllegalState(IllegalStateException e) {
-        log.warn("CONFLICT: {}", e.getMessage());
+        log.warn("Конфликт: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.CONFLICT.name())
-                .reason("For the requested operation the conditions are not met.")
+                .reason("Для запрошенной операции условия не выполнены.")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -58,10 +58,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiError> handleConflict(ConflictException e) {
-        log.warn("CONFLICT: {}", e.getMessage());
+        log.warn("Конфликт: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.CONFLICT.name())
-                .reason("Integrity constraint violation")
+                .reason("Нарушение целостности данных")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -70,10 +70,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleCustomNotFound(EntityNotFoundException e) {
-        log.warn("NOT_FOUND custom: {}", e.getMessage());
+        log.warn("Объект не найден: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.NOT_FOUND.name())
-                .reason("The required object was not found.")
+                .reason("Требуемый объект не найден.")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -82,15 +82,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
-        log.info("METHOD ARGUMENT VALIDATION HANDLER CALLED: {}", e.getClass().getName());
+        log.info("Обработка валидации аргументов метода: {}", e.getClass().getName());
         String message = e.getBindingResult().getFieldErrors().stream()
-                .map((FieldError error) -> String.format("Field: %s. Error: %s. Value: %s",
+                .map((FieldError error) -> String.format("Поле: %s. Ошибка: %s. Значение: %s",
                         error.getField(), error.getDefaultMessage(), error.getRejectedValue()))
                 .collect(Collectors.joining(". "));
-        log.warn("BAD_REQUEST validation: {}", message);
+        log.warn("Ошибка валидации: {}", message);
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
+                .reason("Некорректно составлен запрос.")
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -99,15 +99,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ApiError> handleBindException(BindException e) {
-        log.info("BIND EXCEPTION HANDLER CALLED: {}", e.getClass().getName());
+        log.info("Обработка BindException: {}", e.getClass().getName());
         String message = e.getBindingResult().getFieldErrors().stream()
-                .map(error -> String.format("Field: %s. Error: %s. Value: %s",
+                .map(error -> String.format("Поле: %s. Ошибка: %s. Значение: %s",
                         error.getField(), error.getDefaultMessage(), error.getRejectedValue()))
                 .collect(Collectors.joining(". "));
-        log.warn("BAD_REQUEST bind validation: {}", message);
+        log.warn("Ошибка привязки данных: {}", message);
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
+                .reason("Некорректно составлен запрос.")
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -116,15 +116,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException e) {
-        log.info("CONSTRAINT VIOLATION HANDLER CALLED: {}", e.getClass().getName());
+        log.info("Обработка нарушения ограничений: {}", e.getClass().getName());
         String message = e.getConstraintViolations().stream()
-                .map(violation -> String.format("Field: %s. Error: %s. Value: %s",
+                .map(violation -> String.format("Поле: %s. Ошибка: %s. Значение: %s",
                         violation.getPropertyPath(), violation.getMessage(), violation.getInvalidValue()))
                 .collect(Collectors.joining(". "));
-        log.warn("BAD_REQUEST constraint validation: {}", message);
+        log.warn("Нарушение ограничений: {}", message);
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
+                .reason("Некорректно составлен запрос.")
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -133,11 +133,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TypeMismatchException.class)
     public ResponseEntity<ApiError> handleTypeMismatch(TypeMismatchException e) {
-        log.warn("BAD_REQUEST type mismatch: {}", e.getMessage());
+        log.warn("Несоответствие типа: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
-                .message("Failed to convert value: " + e.getMessage())
+                .reason("Некорректно составлен запрос.")
+                .message("Ошибка преобразования значения: " + e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.badRequest().body(error);
@@ -145,11 +145,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiError> handleMissingRequestParam(MissingServletRequestParameterException e) {
-        log.warn("BAD_REQUEST missing request param: {}", e.getParameterName());
+        log.warn("Отсутствует обязательный параметр: {}", e.getParameterName());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Required request parameter is missing.")
-                .message("Parameter '" + e.getParameterName() + "' is required")
+                .reason("Отсутствует обязательный параметр запроса.")
+                .message("Параметр '" + e.getParameterName() + "' обязателен")
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.badRequest().body(error);
@@ -157,12 +157,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
-        log.warn("BAD_REQUEST JSON parse error", e);
+        log.warn("Ошибка чтения JSON", e);
 
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
-                .message("Invalid request body")
+                .reason("Некорректно составлен запрос.")
+                .message("Неверный формат тела запроса")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -171,12 +171,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidFormatException.class)
     public ResponseEntity<ApiError> handleInvalidFormat(InvalidFormatException e) {
-        log.warn("BAD_REQUEST invalid format", e);
+        log.warn("Неверный формат данных", e);
 
         ApiError error = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
-                .message("Invalid format of request field")
+                .reason("Некорректно составлен запрос.")
+                .message("Неверный формат поля запроса")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -185,11 +185,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException e) {
-        log.warn("CONFLICT data integrity: {}", e.getMessage());
+        log.warn("Нарушение целостности данных: {}", e.getMessage());
         ApiError error = ApiError.builder()
                 .status(HttpStatus.CONFLICT.name())
-                .reason("For the requested operation the conditions are not met.")
-                .message("Unique constraint violation: " + e.getMessage())
+                .reason("Для запрошенной операции условия не выполнены.")
+                .message("Нарушение уникальности данных: " + e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
@@ -197,11 +197,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception e) {
-        log.error("INTERNAL_SERVER_ERROR: {}", e.getMessage(), e);
+        log.error("Внутренняя ошибка сервера: {}", e.getMessage(), e);
         ApiError error = ApiError.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
-                .reason("Internal server error.")
-                .message(e.getMessage() != null ? e.getMessage() : "Unknown error")
+                .reason("Внутренняя ошибка сервера.")
+                .message(e.getMessage() != null ? e.getMessage() : "Неизвестная ошибка")
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

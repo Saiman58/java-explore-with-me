@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.explorewithme.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.explorewithme.request.dto.ParticipationRequestDto;
-import ru.practicum.explorewithme.server.service.RequestService;
+import ru.practicum.explorewithme.server.service.RequestServiceImpl;
 
 import java.util.List;
 
@@ -19,11 +19,11 @@ import java.util.List;
 @Validated
 public class PrivateRequestController {
 
-    private final RequestService requestService;
+    private final RequestServiceImpl requestServiceImpl;
 
     @GetMapping
     public List<ParticipationRequestDto> getAll(@PathVariable Long userId) {
-        return requestService.getByUser(userId);
+        return requestServiceImpl.getByUser(userId);
     }
 
     @PostMapping
@@ -31,26 +31,26 @@ public class PrivateRequestController {
             @PathVariable Long userId,
             @RequestParam(required = false) Long eventId) {
 
-        ParticipationRequestDto dto = requestService.create(userId, eventId);
+        ParticipationRequestDto dto = requestServiceImpl.create(userId, eventId);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @PatchMapping("/{requestId}/cancel")
     public ParticipationRequestDto cancel(@PathVariable Long userId,
                                           @PathVariable Long requestId) {
-        return requestService.cancel(userId, requestId);
+        return requestServiceImpl.cancel(userId, requestId);
     }
 
     @GetMapping("/events/{eventId}")
     public List<ParticipationRequestDto> getByEvent(@PathVariable Long userId,
                                                     @PathVariable Long eventId) {
-        return requestService.getByEvent(userId, eventId);
+        return requestServiceImpl.getByEvent(userId, eventId);
     }
 
     @PatchMapping("/events/{eventId}/requests")
     public EventRequestStatusUpdateResult changeStatus(@PathVariable Long userId,
                                                        @PathVariable Long eventId,
                                                        @Valid @RequestBody EventRequestStatusUpdateRequest update) {
-        return requestService.changeStatus(userId, eventId, update);
+        return requestServiceImpl.changeStatus(userId, eventId, update);
     }
 }
