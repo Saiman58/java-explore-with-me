@@ -31,7 +31,7 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
     private final RequestMapper requestMapper;
 
     @PersistenceContext
@@ -55,7 +55,7 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalArgumentException("Параметр 'eventId' обязателен");
         }
 
-        userServiceImpl.getById(userId);
+        userService.getById(userId);
 
         Event event = eventRepository.findByIdWithInitiator(eventId)
                 .orElseThrow(() -> {
@@ -64,7 +64,8 @@ public class RequestServiceImpl implements RequestService {
                 });
 
         if (event.getInitiator().getId().equals(userId)) {
-            log.warn("[RequestService] Пользователь пытается участвовать в своём событии: userId={}, eventId={}", userId, eventId);
+            log.warn("[RequestService] Пользователь пытается участвовать в своём событии: userId={}, eventId={}",
+                    userId, eventId);
             throw new ConflictException("Нельзя запрашивать участие в своём собственном событии");
         }
 
@@ -94,7 +95,7 @@ public class RequestServiceImpl implements RequestService {
 
         Request request = Request.builder()
                 .event(event)
-                .requester(userServiceImpl.getById(userId))
+                .requester(userService.getById(userId))
                 .status(status)
                 .created(LocalDateTime.now())
                 .build();
@@ -118,7 +119,8 @@ public class RequestServiceImpl implements RequestService {
                 });
 
         if (!request.getRequester().getId().equals(userId)) {
-            log.warn("[RequestService] Доступ запрещён: userId={}, requesterId={}", userId, request.getRequester().getId());
+            log.warn("[RequestService] Доступ запрещён: userId={}, requesterId={}", userId,
+                    request.getRequester().getId());
             throw new IllegalArgumentException(NOT_YOUR_REQUEST);
         }
 
@@ -140,7 +142,7 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getByUser(Long userId) {
         log.debug("[RequestService] Получение заявок пользователя: userId={}", userId);
 
-        userServiceImpl.getById(userId);
+        userService.getById(userId);
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
 
         log.debug("[RequestService] Найдено {} заявок: userId={}", requests.size(), userId);
@@ -154,7 +156,7 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getByEvent(Long userId, Long eventId) {
         log.debug("[RequestService] Получение заявок для события: userId={}, eventId={}", userId, eventId);
 
-        userServiceImpl.getById(userId);
+        userService.getById(userId);
 
         Event event = eventRepository.findByIdWithInitiator(eventId)
                 .orElseThrow(() -> {
@@ -163,7 +165,8 @@ public class RequestServiceImpl implements RequestService {
                 });
 
         if (!event.getInitiator().getId().equals(userId)) {
-            log.warn("[RequestService] Доступ запрещён: userId={}, initiatorId={}", userId, event.getInitiator().getId());
+            log.warn("[RequestService] Доступ запрещён: userId={}, initiatorId={}", userId,
+                    event.getInitiator().getId());
             throw new IllegalArgumentException(NOT_YOUR_EVENT);
         }
 
@@ -185,7 +188,7 @@ public class RequestServiceImpl implements RequestService {
         log.info("[RequestService] Изменение статусов: userId={}, eventId={}, status={}, count={}",
                 userId, eventId, update.getStatus(), update.getRequestIds().size());
 
-        userServiceImpl.getById(userId);
+        userService.getById(userId);
 
         Event event = eventRepository.findByIdWithInitiator(eventId)
                 .orElseThrow(() -> {
@@ -194,7 +197,8 @@ public class RequestServiceImpl implements RequestService {
                 });
 
         if (!event.getInitiator().getId().equals(userId)) {
-            log.warn("[RequestService] Доступ запрещён: userId={}, initiatorId={}", userId, event.getInitiator().getId());
+            log.warn("[RequestService] Доступ запрещён: userId={}, initiatorId={}", userId,
+                    event.getInitiator().getId());
             throw new IllegalArgumentException(NOT_YOUR_EVENT);
         }
 

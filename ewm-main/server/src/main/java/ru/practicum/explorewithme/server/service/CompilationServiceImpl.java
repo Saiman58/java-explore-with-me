@@ -27,9 +27,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CompilationServiceImpl {
+public class CompilationServiceImpl implements CompilationService {
+
     private final CompilationRepository compilationRepository;
-    private final EventServiceImpl eventServiceImpl;
+    private final EventService eventService;  // Изменено с EventServiceImpl на интерфейс EventService
     private final CompilationMapper compilationMapper;
     private final EventMapper eventMapper;
 
@@ -40,71 +41,120 @@ public class CompilationServiceImpl {
     private static final String COMPILATION_TITLE_EXISTS = "Название подборки уже существует: %s";
     private static final boolean DEFAULT_PINNED = false;
 
+    @Override
     @Transactional
     public CompilationDto create(NewCompilationDto newCompilation) {
-        log.info("Создание подборки с заголовком '{}'", newCompilation.getTitle());
+        log.info("[CompilationService] Создание подборки: {}", newCompilation.getTitle());
+
         if (compilationRepository.existsByTitle(newCompilation.getTitle())) {
+            log.warn("[CompilationService] Подборка с названием '{}' уже существует", newCompilation.getTitle());
             throw new IllegalStateException(String.format(COMPILATION_TITLE_EXISTS, newCompilation.getTitle()));
         }
+
         Compilation compilation = Compilation.builder()
                 .title(newCompilation.getTitle())
                 .pinned(newCompilation.getPinned() != null ? newCompilation.getPinned() : DEFAULT_PINNED)
                 .build();
+
         Set<Event> events = new HashSet<>();
         if (newCompilation.getEvents() != null && !newCompilation.getEvents().isEmpty()) {
-            newCompilation.getEvents().forEach(eventId -> events.add(eventServiceImpl.getById(eventId)));
+            newCompilation.getEvents().forEach(eventId -> {
+                try {
+                    events.add(eventService.getById(eventId));  // Используем интерфейс
+                } catch (Exception e) {
+                    log.error("[CompilationService] Ошибка при получении события {}: {}", eventId, e.getMessage());
+                    throw e;
+                }
+            });
         }
         compilation.setEvents(events);
+
         compilation = compilationRepository.save(compilation);
         entityManager.flush();
-        log.info("Подборка создана с ID {}", compilation.getId());
+
+        log.info("[CompilationService] Подборка создана: id={}, title={}, events={}",
+                compilation.getId(), compilation.getTitle(), events.size());
 
         List<EventShortDto> eventDtos = events.stream()
-                .map(e -> eventMapper.toShortDto(e, eventServiceImpl.getConfirmedCount(e.getId()), eventServiceImpl.getViewsForEvent(e.getId())))
+                .map(e -> eventMapper.toShortDto(e,
+                        eventService.getConfirmedCount(e.getId()),
+                        eventService.getViewsForEvent(e.getId())))
                 .collect(Collectors.toList());
 
         return compilationMapper.toDto(compilation, eventDtos);
     }
 
+    @Override
+    @Transactional
     public CompilationDto update(Long compId, UpdateCompilationRequest update) {
-        log.info("Обновление подборки ID {}", compId);
+        log.info("[CompilationService] Обновление подборки: id={}", compId);
+
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(COMPILATION_NOT_FOUND, compId)));
+                .orElseThrow(() -> {
+                    log.error("[CompilationService] Подборка не найдена: id={}", compId);
+                    return new EntityNotFoundException(String.format(COMPILATION_NOT_FOUND, compId));
+                });
+
         if (update.getTitle() != null) {
             if (compilationRepository.existsByTitleAndIdNot(update.getTitle(), compId)) {
+                log.warn("[CompilationService] Название подборки уже занято: {}", update.getTitle());
                 throw new IllegalStateException(String.format(COMPILATION_TITLE_EXISTS, update.getTitle()));
             }
             compilation.setTitle(update.getTitle());
         }
-        if (update.getPinned() != null) compilation.setPinned(update.getPinned());
+
+        if (update.getPinned() != null) {
+            compilation.setPinned(update.getPinned());
+        }
+
         Set<Event> events = new HashSet<>();
         if (update.getEvents() != null && !update.getEvents().isEmpty()) {
-            update.getEvents().forEach(eventId -> events.add(eventServiceImpl.getById(eventId)));
+            update.getEvents().forEach(eventId -> {
+                try {
+                    events.add(eventService.getById(eventId));  // Используем интерфейс
+                } catch (Exception e) {
+                    log.error("[CompilationService] Ошибка при получении события {}: {}", eventId, e.getMessage());
+                    throw e;
+                }
+            });
         }
         compilation.setEvents(events);
+
         compilation = compilationRepository.save(compilation);
-        log.info("Подборка ID {} обновлена", compId);
+
+        log.info("[CompilationService] Подборка обновлена: id={}, events={}", compId, events.size());
 
         List<EventShortDto> eventDtos = events.stream()
-                .map(e -> eventMapper.toShortDto(e, eventServiceImpl.getConfirmedCount(e.getId()), eventServiceImpl.getViewsForEvent(e.getId())))
+                .map(e -> eventMapper.toShortDto(e,
+                        eventService.getConfirmedCount(e.getId()),
+                        eventService.getViewsForEvent(e.getId())))
                 .collect(Collectors.toList());
 
         return compilationMapper.toDto(compilation, eventDtos);
     }
 
+    @Override
+    @Transactional
     public void delete(Long compId) {
-        log.info("Удаление подборки ID {}", compId);
+        log.info("[CompilationService] Удаление подборки: id={}", compId);
+
         if (!compilationRepository.existsById(compId)) {
+            log.error("[CompilationService] Подборка не найдена для удаления: id={}", compId);
             throw new EntityNotFoundException(String.format(COMPILATION_NOT_FOUND, compId));
         }
+
         compilationRepository.deleteById(compId);
-        log.info("Подборка ID {} удалена", compId);
+        log.info("[CompilationService] Подборка удалена: id={}", compId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getAll(Boolean pinned, Integer from, Integer size) {
-        log.debug("Получение подборок pinned={} from {} size {}", pinned, from, size);
+        log.debug("[CompilationService] Получение подборок: pinned={}, from={}, size={}", pinned, from, size);
+
         PageRequest pageable = PageRequest.of(from / size, size);
         List<Compilation> compilations;
+
         if (pinned != null) {
             Page<Compilation> page = compilationRepository.findAllByPinned(pinned, pageable);
             compilations = page.getContent();
@@ -113,26 +163,40 @@ public class CompilationServiceImpl {
             compilations = page.getContent();
         }
 
+        log.debug("[CompilationService] Найдено {} подборок", compilations.size());
+
         return compilations.stream()
                 .map(comp -> {
-                    List<EventShortDto> eventDtos = comp.getEvents() != null ? comp.getEvents().stream()
-                            .map(e -> eventMapper.toShortDto(e, eventServiceImpl.getConfirmedCount(e.getId()), eventServiceImpl.getViewsForEvent(e.getId())))
-                            .collect(Collectors.toList()) : List.of();
+                    List<EventShortDto> eventDtos = comp.getEvents() != null ?
+                            comp.getEvents().stream()
+                                    .map(e -> eventMapper.toShortDto(e,
+                                            eventService.getConfirmedCount(e.getId()),
+                                            eventService.getViewsForEvent(e.getId())))
+                                    .collect(Collectors.toList()) : List.of();
                     return compilationMapper.toDto(comp, eventDtos);
                 })
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public CompilationDto getById(Long compId) {
-        log.debug("Получение подборки ID {}", compId);
+        log.debug("[CompilationService] Получение подборки: id={}", compId);
+
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(COMPILATION_NOT_FOUND, compId)));
+                .orElseThrow(() -> {
+                    log.error("[CompilationService] Подборка не найдена: id={}", compId);
+                    return new EntityNotFoundException(String.format(COMPILATION_NOT_FOUND, compId));
+                });
 
-        List<EventShortDto> eventDtos = compilation.getEvents() != null ? compilation.getEvents().stream()
-                .map(e -> eventMapper.toShortDto(e, eventServiceImpl.getConfirmedCount(e.getId()), eventServiceImpl.getViewsForEvent(e.getId())))
-                .collect(Collectors.toList()) : List.of();
+        List<EventShortDto> eventDtos = compilation.getEvents() != null ?
+                compilation.getEvents().stream()
+                        .map(e -> eventMapper.toShortDto(e,
+                                eventService.getConfirmedCount(e.getId()),
+                                eventService.getViewsForEvent(e.getId())))
+                        .collect(Collectors.toList()) : List.of();
 
+        log.debug("[CompilationService] Подборка найдена: id={}, events={}", compId, eventDtos.size());
         return compilationMapper.toDto(compilation, eventDtos);
     }
 }

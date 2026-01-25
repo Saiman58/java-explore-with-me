@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
     private final CategoryService categoryService;
     private final RequestRepository requestRepository;
     private final StatClient statClient;
@@ -49,7 +49,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto create(Long userId, NewEventDto newEvent) {
         log.info("[EventService] Создание события: userId={}, title={}", userId, newEvent.getTitle());
 
-        User user = userServiceImpl.getById(userId);
+        User user = userService.getById(userId);
 
         if (newEvent.getEventDate().isBefore(LocalDateTime.now().plusHours(USER_HOURS_AHEAD))) {
             log.warn("[EventService] Дата события слишком рано: {}", newEvent.getEventDate());
@@ -93,7 +93,8 @@ public class EventServiceImpl implements EventService {
         Event event = getById(eventId);
 
         if (!event.getInitiator().getId().equals(userId)) {
-            log.error("[EventService] Доступ запрещён: userId={}, initiatorId={}", userId, event.getInitiator().getId());
+            log.error("[EventService] Доступ запрещён: userId={}, initiatorId={}", userId,
+                    event.getInitiator().getId());
             throw new EntityNotFoundException("Событие недоступно для этого пользователя");
         }
 
@@ -102,7 +103,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException("Опубликованные события нельзя обновлять");
         }
 
-        if (update.getEventDate() != null && update.getEventDate().isBefore(LocalDateTime.now().plusHours(USER_HOURS_AHEAD))) {
+        if (update.getEventDate() != null && update.getEventDate().isBefore(LocalDateTime.now()
+                .plusHours(USER_HOURS_AHEAD))) {
             log.warn("[EventService] Дата события слишком рано: {}", update.getEventDate());
             throw new IllegalArgumentException("Дата события должна быть не менее чем через 2 часа");
         }
@@ -156,7 +158,8 @@ public class EventServiceImpl implements EventService {
                 case "PUBLISH_EVENT":
                     if (event.getState() != EventState.PENDING) {
                         log.error("[EventService] Нельзя опубликовать: текущий state={}", event.getState());
-                        throw new IllegalStateException("Невозможно опубликовать событие, текущее состояние: " + event.getState());
+                        throw new IllegalStateException("Невозможно опубликовать событие, текущее состояние: " +
+                                event.getState());
                     }
                     event.setState(EventState.PUBLISHED);
                     event.setPublishedOn(LocalDateTime.now());
@@ -195,7 +198,8 @@ public class EventServiceImpl implements EventService {
         int safeFrom = from != null ? from : 0;
         int safeSize = size != null ? size : 10;
 
-        PageRequest pageable = PageRequest.of(0, safeFrom + safeSize, Sort.by("eventDate").descending());
+        PageRequest pageable = PageRequest.of(0, safeFrom + safeSize,
+                Sort.by("eventDate").descending());
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
 
         int endIndex = Math.min(events.size(), safeFrom + safeSize);
@@ -219,7 +223,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventFullDto> getAdminEvents(List<Long> users, List<EventState> states, List<Long> categories,
-                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+                                             LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                             Integer from, Integer size) {
         log.debug("[EventService] Поиск событий админом: users={}, states={}, categories={}, from={}, size={}",
                 users, states, categories, from, size);
 
@@ -256,7 +261,8 @@ public class EventServiceImpl implements EventService {
         int page = from != null ? from / (size != null ? size : 10) : 0;
         int pageSize = size != null ? size : 10;
 
-        Sort sortBy = "VIEWS".equals(sort) ? Sort.by("eventDate").descending() : Sort.by("eventDate").descending();
+        Sort sortBy = "VIEWS".equals(sort) ? Sort.by("eventDate").descending() :
+                Sort.by("eventDate").descending();
         PageRequest pageable = PageRequest.of(page, pageSize, sortBy);
 
         LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now();

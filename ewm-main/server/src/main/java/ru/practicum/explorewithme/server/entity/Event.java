@@ -3,25 +3,31 @@ package ru.practicum.explorewithme.server.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "events")
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Event {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @ToString.Exclude
     private Category category;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -35,6 +41,7 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id", nullable = false)
+    @ToString.Exclude
     private User initiator;
 
     @Embedded
@@ -68,5 +75,6 @@ public class Event {
     private String title;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Set<Request> requests;
 }
