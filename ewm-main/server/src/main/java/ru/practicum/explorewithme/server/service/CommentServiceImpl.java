@@ -31,7 +31,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
 
-
     @Override
     @Transactional
     public CommentDto createComment(Long userId, NewCommentDto newCommentDto) {
