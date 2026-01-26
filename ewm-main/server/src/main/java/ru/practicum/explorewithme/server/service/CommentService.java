@@ -2,11 +2,8 @@ package ru.practicum.explorewithme.server.service;
 
 import ru.practicum.explorewithme.comment.dto.CommentDto;
 import ru.practicum.explorewithme.comment.dto.NewCommentDto;
-import ru.practicum.explorewithme.server.entity.Event;
-import ru.practicum.explorewithme.server.entity.EventState;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CommentService {
 
