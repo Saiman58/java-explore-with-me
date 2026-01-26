@@ -37,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
         log.info("[CommentService] Создание комментария пользователем {} к событию {}",
                 userId, newCommentDto.getEventId());
 
+
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("[CommentService] Пользователь не найден: id={}", userId);
