@@ -1,58 +1,89 @@
 # docker-compose up -d
 # docker ps
-
-version: '3.8'
+# docker compose up -d --build
+# docker-compose up --force-recreate --build
 
 services:
+
   stats-db:
-    image: postgres:16.1-alpine
+    image: postgres:15-alpine
     container_name: stats-db
-    environment:
-      POSTGRES_USER: stats
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: stats
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ewm_stats
+      POSTGRES_USER: stats
+      POSTGRES_PASSWORD: stats
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stats"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U stats -d ewm_stats"]
+      interval: 10s
+      timeout: 5s
       retries: 5
+
     volumes:
-      - stats-db-data:/var/lib/postgresql/data
+      - stats-db:/var/lib/postgresql/data
 
   stats-server:
-    build:
-      context: .
-      dockerfile: stats/stats-server/Dockerfile
+    build: ewm-stats/server
     container_name: stats-server
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
-      SPRING_DATASOURCE_USERNAME: stats
-      SPRING_DATASOURCE_PASSWORD: password
-    depends_on:
-      stats-db:
-        condition: service_healthy
     ports:
       - "9090:9090"
-
-  ewm-service:
-    build:
-      context: .
-      dockerfile: ewm-service/Dockerfile
-    container_name: ewm-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/ewm_stats
       SPRING_DATASOURCE_USERNAME: stats
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_PASSWORD: stats
+
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       stats-db:
         condition: service_healthy
-      stats-server:
-        condition: service_started
+    volumes:
+      - stats-server:/app
+
+  main-db:
+    image: postgres:15-alpine
+    container_name: main-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: ewm_main
+      POSTGRES_USER: main
+      POSTGRES_PASSWORD: main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U main -d ewm_main"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - main-db:/var/lib/postgresql/data
+
+  ewm-service:
+    build: ewm-main/server
+    container_name: ewm-service
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://main-db:5432/ewm_main
+      SPRING_DATASOURCE_USERNAME: main
+      SPRING_DATASOURCE_PASSWORD: main
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_PROFILES_ACTIVE: docker
+      STATS_SERVER_URL: http://stats-server:9090
+    depends_on:
+      - main-db
+      - stats-db
+      - stats-server
+    volumes:
+      - main-server:/app
 
 volumes:
-  stats-db-data:
+  stats-db:
+    driver: local
+  stats-server:
+    driver: local
+  main-db:
+    driver: local
+  main-server:
+    driver: local
 
 
