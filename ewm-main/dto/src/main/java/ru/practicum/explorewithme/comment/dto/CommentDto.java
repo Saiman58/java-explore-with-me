@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
+
     @NotNull(message = "ID комментария не может быть null")
     private Long id;
 

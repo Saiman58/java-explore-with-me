@@ -19,10 +19,4 @@ public class NewCommentDto {
     @Size(min = 1, max = 1000, message = "Длина текста должна быть от 1 до 1000 символов")
     private String text;
 
-    /*
-
-    @NotNull(message = "ID события не может быть null")
-    private Long eventId;
-    */
-
 }

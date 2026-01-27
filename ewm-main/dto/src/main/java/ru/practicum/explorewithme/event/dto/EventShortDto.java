@@ -37,6 +37,5 @@ public class EventShortDto {
 
     private Long views;
 
-
     private Long commentCount;
 }
