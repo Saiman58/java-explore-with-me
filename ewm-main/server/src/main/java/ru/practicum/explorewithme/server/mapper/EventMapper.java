@@ -15,7 +15,7 @@ public class EventMapper {
     private final CategoryMapper categoryMapper;
     private final UserMapper userMapper;
 
-    public EventFullDto toFullDto(Event event, Long confirmedRequests, Long views, boolean isNew) {
+    public EventFullDto toFullDto(Event event, Long confirmedRequests, Long views, boolean isNew, Long commentCount) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -33,6 +33,7 @@ public class EventMapper {
                 .state(event.getState().name())
                 .title(event.getTitle())
                 .views(views)
+                .commentCount(commentCount)
                 .build();
     }
 

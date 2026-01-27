@@ -33,6 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private static final String CATEGORY_NOT_FOUND = "Категория с id=%d не найдена";
     private static final String CATEGORY_NAME_EXISTS = "Название категории уже существует: %s";
+    private static final String CATEGORY_NOT_EMPTY = "Категория не пустая";
 
     @Override
     @Transactional
@@ -91,7 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
         // Проверка связанных событий
         if (eventRepository.existsByCategoryId(catId)) {
             log.warn("[CategoryService] Нельзя удалить категорию с событиями: id={}", catId);
-            throw new IllegalStateException("Категория не пустая");
+            throw new IllegalStateException(CATEGORY_NOT_EMPTY);
         }
 
         categoryRepository.deleteById(catId);
