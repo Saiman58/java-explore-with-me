@@ -54,3 +54,12 @@ CREATE TABLE IF NOT EXISTS requests (
   requester_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
   status VARCHAR(255) NOT NULL
 );
+
+-- Таблица для хранения комментариев к событиям
+CREATE TABLE comments (
+    id BIGSERIAL PRIMARY KEY,
+    text VARCHAR(1000) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    event_id BIGINT NOT NULL REFERENCES events(id) ON DELETE CASCADE
+);

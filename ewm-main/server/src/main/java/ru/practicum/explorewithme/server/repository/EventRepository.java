@@ -60,4 +60,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     // Получение события с инициатором (FETCH JOIN)
     @Query("SELECT e FROM Event e JOIN FETCH e.initiator WHERE e.id = :id")
     Optional<Event> findByIdWithInitiator(@Param("id") Long id);
+
+    /**
+     * Найти событие по ID и статусу
+     * @param id ID события
+     * @param eventState статус события
+     * @return Optional с событием
+     */
+    Optional<Event> findByIdAndState(Long id, EventState eventState);
 }

@@ -34,6 +34,7 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
     private final StatClient statClient;
     private final EventMapper eventMapper;
+    private final CommentService commentService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -81,8 +82,9 @@ public class EventServiceImpl implements EventService {
 
         Long confirmedRequests = getConfirmedCount(event.getId());
         Long views = getViewsForEvent(event.getId());
+        Long commentCount = commentService.getCommentCount(event.getId());
 
-        return eventMapper.toFullDto(event, confirmedRequests, views, true);
+        return eventMapper.toFullDto(event, confirmedRequests, views, true, commentCount);
     }
 
     @Override
@@ -136,8 +138,10 @@ public class EventServiceImpl implements EventService {
 
         Long confirmedRequests = getConfirmedCount(event.getId());
         Long views = getViewsForEvent(event.getId());
+        Long commentCount = commentService.getCommentCount(event.getId());
 
-        return eventMapper.toFullDto(event, confirmedRequests, views, false);
+
+        return eventMapper.toFullDto(event, confirmedRequests, views, false, commentCount);
     }
 
     @Override
@@ -186,8 +190,10 @@ public class EventServiceImpl implements EventService {
 
         Long confirmedRequests = getConfirmedCount(event.getId());
         Long views = getViewsForEvent(event.getId());
+        Long commentCount = commentService.getCommentCount(event.getId());
 
-        return eventMapper.toFullDto(event, confirmedRequests, views, false);
+
+        return eventMapper.toFullDto(event, confirmedRequests, views, false, commentCount);
     }
 
     @Override
@@ -245,7 +251,9 @@ public class EventServiceImpl implements EventService {
                 .map(e -> {
                     Long confirmedRequests = getConfirmedCount(e.getId());
                     Long views = getViewsForEvent(e.getId());
-                    return eventMapper.toFullDto(e, confirmedRequests, views, false);
+                    Long commentCount = commentService.getCommentCount(e.getId());
+
+                    return eventMapper.toFullDto(e, confirmedRequests, views, false, commentCount);
                 })
                 .collect(Collectors.toList());
     }
@@ -350,8 +358,10 @@ public class EventServiceImpl implements EventService {
         views = (views != null ? views : 0L) + 1;
 
         Long confirmedRequests = getConfirmedCount(event.getId());
+        Long commentCount = commentService.getCommentCount(event.getId());
 
-        EventFullDto dto = eventMapper.toFullDto(event, confirmedRequests, views, false);
+
+        EventFullDto dto = eventMapper.toFullDto(event, confirmedRequests, views, false, commentCount);
         dto.setViews(views);
 
         log.info("[EventService] Событие просмотрено: eventId={}, ip={}, views={}", eventId, remoteAddr, dto.getViews());
@@ -372,9 +382,10 @@ public class EventServiceImpl implements EventService {
 
         Long confirmedRequests = getConfirmedCount(event.getId());
         Long views = getViewsForEvent(event.getId());
+        Long commentCount = commentService.getCommentCount(event.getId());
 
         log.debug("[EventService] Событие пользователя найдено: eventId={}, userId={}", eventId, userId);
-        return eventMapper.toFullDto(event, confirmedRequests, views, false);
+        return eventMapper.toFullDto(event, confirmedRequests, views, false, commentCount);
     }
 
     @Override
